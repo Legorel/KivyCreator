@@ -1,0 +1,15 @@
+GridLayout:
+  i: i
+  cols: 1
+  size_hint: 1, 1
+  
+  TextInput
+    id: i
+    multiline: False
+    focus: True
+  
+  Button:
+    text: "Create"
+    on_release: 
+      root.parent.parent.parent.dismiss()
+      app.new_project(self.parent.i.text)

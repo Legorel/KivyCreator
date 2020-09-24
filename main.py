@@ -1,130 +1,153 @@
+import os
+from shutil import rmtree
+
 import kivy
 from kivy.app import App
-from kivy.lang import Builder
-from kivy.factory import Factory
-from kivy.logger import Logger
-from kivy.uix.screenmanager import ScreenManager, Screen, SlideTransition, NoTransition
-from kivy.uix.scrollview import ScrollView
-from kivy.uix.gridlayout import GridLayout
+from kivy.uix.screenmanager import *
 from kivy.uix.button import Button
+from kivy.uix.label import Label
+from kivy.uix.codeinput import CodeInput
 from kivy.uix.popup import Popup
+from kivy.lang import Builder
+from kivy.logger import Logger
 
-import os
 
-app = ""
-root_path = os.getcwd()
-projects_path = os.path.join(root_path, "projects")
-projects = []
+root_dir = os.path.abspath(os.getcwd())
+layout_dir = os.path.join(root_dir, "layout")
 
-new_project_name = ""
+py_code = """"""
+kv_code = """"""
 
-py_code = ""
-kv_code = ""
+
+class ProjectButton(Button):
+  def _init__(self, **kwargs):
+    super(ProjectButton, self).__init__(**kwargs)
+  
+  def on_release(self):
+    app = App.get_running_app()
+    this_project_dir = os.path.join(app.projects_dir, self.text)
+    try:
+      py_file = open(os.path.join(this_project_dir, "main.py"), "r")
+      kv_file = open(os.path.join(this_project_dir, "main.kv"), "r")
+      py_code = py_file.read()
+      py_file.close()
+      kv_code = kv_file.read()
+      kv_file.close()
+    except:
+      Logger.info("IMPORTANT:it failed :(")
+    Logger.info("IMPORTANT: {}\n{}".format(py_code, kv_code))
+    m = App.get_running_app().root
+    m.transition.direction = "left"
+    m.current = "code"
+
+
 
 class ProjectScreen(Screen):
   def __init__(self, **kwargs):
     super(ProjectScreen, self).__init__(**kwargs)
-    self.scroll = ScrollView(do_scroll_x=False);
-    self.scroll.grid = GridLayout(size_hint=(1, 1.75), cols=1)
-    self.scroll.add_widget(self.scroll.grid)
-    self.scroll.grid.add = AddProjectButton(text="New project", size_hint_y=None)
-    self.scroll.grid.add_widget(self.scroll.grid.add)
-    self.add_widget(self.scroll);
+    self.projects = []
 
+  def load(self, dir):
+    if not os.path.exists(dir): return
+    self.scroll.grid.projects.clear_widgets()
+    self.projects = [n for n in os.listdir(dir) if os.path.isdir(os.path.join(dir, n))]
+    for i in self.projects:
+      self.scroll.grid.projects.add_widget(ProjectButton(text=i))
+
+  def calc_scroll_size(self):
+    i = 0.9 - self.scroll.grid.button.size_hint_y
+    for _ in self.scroll.grid.projects.children:
+      i = i+0.1
+    self.scroll.grid.size_hint = (1, i)
+
+class CodeScreen(Screen):
+  def __init__(self, **kwargs):
+    super(CodeScreen, self).__init__(**kwargs)
+  
   def on_enter(self):
-    projects = [o for o in os.listdir(projects_path) if os.path.isdir(os.path.join(projects_path, o))]
-    Logger.info("On enter called")
-    for dir in projects:
-      self.scroll.grid.add_widget(ProjectButton(text=dir))
+    Logger.info("IMPORTANT: entered")
+    self.main.manager.screens[0].input.text = py_code
+    self.main.manager.screens[1].input.text = kv_code
 
-
-class Manager(ScreenManager):
+class BaseCodeScreen(Screen):
   def __init__(self, **kwargs):
-    super(Manager, self).__init__(**kwargs)
-    self.add_widget(ProjectScreen(name="ProjectS"))
-    self.transition = NoTransition()
-    self.switch_to(ProjectScreen())
-    self.transition = SlideTransition()
+    super(BaseCodeScreen, self).__init__(**kwargs)
+    self.input = CodeInput()
+    self.add_widget(self.input)
 
-
-class ProjectButton(Button):
+class MainManager(ScreenManager):
   def __init__(self, **kwargs):
-    super(ProjectButton, self).__init__(**kwargs)
-    self.size_hint_y = None
-    self.height = "50dp"
+    super(MainManager, self).__init__(**kwargs)
+    self.project = ProjectScreen(name="project")
+    self.add_widget(self.project)
+    self.code = CodeScreen(name="code")
+    self.add_widget(self.code)
 
-  def on_release(self):
-    pass
-
-
-class AddProjectButton(Button):
+class CodeManager(ScreenManager):
   def __init__(self, **kwargs):
-    super(AddProjectButton, self).__init__(**kwargs)
-    self.size_hint_y = None
-    self.height = "50dp"
+    super(CodeManager, self).__init__(**kwargs)
+    self.py_screen = BaseCodeScreen(name="py")
+    self.add_widget(self.py_screen)
+    self.kv_screen = BaseCodeScreen(name="kv")
+    self.add_widget(self.kv_screen)
 
-  def on_release(self):
-    Factory.NewProjectPopup().open()
 
-
-kv = Builder.load_string(
-"""
-#:import Factory kivy.factory.Factory
-#:import Window kivy.core.window.Window
-Manager:
-    EditScreen:
-        name: "EditS"
-
-<ProjectScreen>:
-    name: "ProjectS"
-
-<EditScreen@Screen>:
-
-<NewProjectPopup@Popup>:
-    lay: lay
-    title: "Project name:"
-    size_hint: None, None
-    size: Window.width / 2, Window.height / 3
-    FloatLayout:
-        id: lay
-        edit: edit
-        cols: 1
-        TextInput:
-            size_hint: 1, 0.15
-            pos_hint: {"center_y":0.85, "center_x":0.5}
-            id: edit
-            multiline: False
-
-        Button:
-            size_hint: 0.60, .20
-            pos_hint: {"center_y":0.20,"center_x":0.5}
-            text: "Create"
-            on_release:
-                root.dismiss()
-""")
+root = Builder.load_file(os.path.join(layout_dir, "main.kv"))
 
 class KivyCreator(App):
-  def __init__(self, **kwargs):
-    super(KivyCreator, self).__init__(**kwargs)
+  def __init__(self, *args):
+    super(KivyCreator, self).__init__(*args)
+    self.kv_directory = layout_dir
+    self.projects_dir = os.path.abspath(os.path.join(self.user_data_dir, "projects"))
+
+    if not os.path.exists(self.projects_dir):
+      os.mkdir(self.projects_dir)
 
   def build(self):
-    return kv;
+    return root
 
   def on_start(self):
-    app = App.get_running_app()
-    if not os.path.exists("projects"):
-      os.mkdir("projects")
-    root_path = os.getcwd()
-    projects_path = os.path.join(root_path, "projects")
-
-  def on_resume(self):
-    load_projects()
-
+    self.root.project.load(self.projects_dir)
+    self.root.project.calc_scroll_size()
   def on_pause(self):
     return False
-
+  def on_resume(self):
+    self.root.project.load(self.projects_dir)
+    self.root.project.calc_scroll_size()
   def on_stop(self):
     pass
 
+  def new_project_popup(self):
+    popup = Popup(title="Enter a name",
+        content=Builder.load_file(os.path.join(layout_dir, "new_project_popup.kv")),
+        size_hint=(0.8, 0.2))
+    popup.open()
+
+  def new_project(self, name):
+    p = os.path.join(self.projects_dir, name)
+
+    popup = Popup(title="Invalid name",
+          content=Label(text="A project already have that name"),
+          size_hint=(0.8, 0.15))
+
+    if os.path.exists(p):
+      popup.open()
+      return
+
+    try:
+      os.mkdir(p)
+      open(os.path.join(p, "main.py"), "a").close()
+      open(os.path.join(p, "main.kv"), "a").close()
+      self.root.project.load(self.projects_dir)
+      self.root.project.calc_scroll_size()
+    except:
+      if os.path.exists(p):
+        rmtree(p)
+
+      popup = Popup(title="Oops",
+          content=Label(text="Something went wrong"),
+          size_hint=(0.8, 0.15))
+      popup.open()
+  
 if __name__ == "__main__":
   KivyCreator().run()
