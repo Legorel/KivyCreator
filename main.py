@@ -15,8 +15,8 @@ from kivy.logger import Logger
 root_dir = os.path.abspath(os.getcwd())
 layout_dir = os.path.join(root_dir, "layout")
 
-py_code = """"""
-kv_code = """"""
+py_code = None
+kv_code = None
 
 
 class ProjectButton(Button):
@@ -24,6 +24,8 @@ class ProjectButton(Button):
     super(ProjectButton, self).__init__(**kwargs)
   
   def on_release(self):
+    global py_code
+    global kv_code
     app = App.get_running_app()
     this_project_dir = os.path.join(app.projects_dir, self.text)
     try:
@@ -33,9 +35,9 @@ class ProjectButton(Button):
       py_file.close()
       kv_code = kv_file.read()
       kv_file.close()
+      Logger.info("IMPORTANT: {}\n{}".format(py_code, kv_code))
     except:
       Logger.info("IMPORTANT:it failed :(")
-    Logger.info("IMPORTANT: {}\n{}".format(py_code, kv_code))
     m = App.get_running_app().root
     m.transition.direction = "left"
     m.current = "code"
@@ -64,7 +66,7 @@ class CodeScreen(Screen):
   def __init__(self, **kwargs):
     super(CodeScreen, self).__init__(**kwargs)
   
-  def on_enter(self):
+  def on_pre_enter(self):
     Logger.info("IMPORTANT: entered")
     self.main.manager.screens[0].input.text = py_code
     self.main.manager.screens[1].input.text = kv_code
