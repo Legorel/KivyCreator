@@ -1,5 +1,6 @@
 import os
 from shutil import rmtree
+import importlib
 
 import kivy
 from kivy.app import App
@@ -8,6 +9,7 @@ from kivy.uix.button import Button
 from kivy.uix.label import Label
 from kivy.uix.codeinput import CodeInput
 from kivy.uix.popup import Popup
+from kivy.extras.highlight import KivyLexer
 from kivy.lang import Builder
 from kivy.logger import Logger
 
@@ -16,6 +18,7 @@ layout_dir = os.path.join(root_dir, "layout")
 
 py_code = None
 kv_code = None
+kc = None
 
 
 class ProjectButton(Button):
@@ -92,6 +95,7 @@ class CodeManager(ScreenManager):
     self.py_screen = BaseCodeScreen(name="py")
     self.add_widget(self.py_screen)
     self.kv_screen = BaseCodeScreen(name="kv")
+    self.kv_screen.input.lexer = KivyLexer()
     self.add_widget(self.kv_screen)
 
 
@@ -166,17 +170,55 @@ class KivyCreator(App):
       p.open()
 
   def save_project(self):
+    global py_code
+    global kv_code
     try:
       py_file = open(os.path.join(self.current_project, "main.py"), "w")
       kv_file = open(os.path.join(self.current_project, "main.kv"), "w")
-      py_file.write(self.root.code.main.manager.py_screen.input.text)
-      kv_file.write(self.root.code.main.manager.kv_screen.input.text)
+      py_code = self.root.code.main.manager.py_screen.input.text
+      kv_code = self.root.code.main.manager.kv_screen.input.text
+      py_file.write(py_code)
+      kv_file.write(kv_code)
       py_file.close()
       kv_file.close()
     except:
       Logger.info("whoops")
 
+  def check_code(self):
+    if self.root.code.main.manager.py_screen.input.text != py_code or self.root.code.main.manager.kv_screen.input.text != kv_code:
+      p = Builder.load_file(os.path.join(layout_dir, "check_project_popup.kv"))
+      p.open()
+    else:
+      self.run_code()
 
+  def run_code(self):
+    global kc
+    Logger.info("Run")
+    kc.stop()
+    s = None
+    
+    try:
+      os.chdir(self.current_project)
+      Logger.info(self.current_project)
+      Logger.info(os.getcwd())
+      s = __import__("main")
+      s.start_app()
+    except:
+      
+      kc = KivyCreator()
+      kc.run()
+      Logger.info("Shit")
+    else:
+      kc = KivyCreator()
+      kc.run()
+    
+
+
+
+class second(App):
+  def build(self):
+    return Button(text="cool", on_press=lambda s: self.stop())
 
 if __name__ == "__main__":
-  KivyCreator().run()
+  kc = KivyCreator()
+  kc.run()
