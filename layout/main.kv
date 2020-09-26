@@ -11,7 +11,7 @@ MainManager:
     do_scroll_x: False
     size_hint: 1, None
     size: (self.parent.width, self.parent.height)
-    
+
     GridLayout:
       button: button
       projects: projects
@@ -19,7 +19,7 @@ MainManager:
       size_hint: 1, 1.5
       cols: 1
       spacing: 0, 0.5
-      
+
       GridLayout:
         id: button
         new: new
@@ -37,7 +37,7 @@ MainManager:
       GridLayout:
         id:  projects
         cols: 1
-        
+
 
 <CodeScreen>:
   main: main
@@ -46,7 +46,7 @@ MainManager:
     manager: manager
     buttons: buttons
     cols: 1
-  
+
     GridLayout:
       id: buttons
       size_hint: 1, 0.085
@@ -54,9 +54,7 @@ MainManager:
 
       Button:
         text: "back"
-        on_release:
-          app.root.transition.direction = "right"
-          app.root.current = "project"
+        on_release: app.close_project()
 
       ToggleButton:
         group: "nav"

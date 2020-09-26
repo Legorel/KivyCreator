@@ -11,7 +11,6 @@ from kivy.uix.popup import Popup
 from kivy.lang import Builder
 from kivy.logger import Logger
 
-
 root_dir = os.path.abspath(os.getcwd())
 layout_dir = os.path.join(root_dir, "layout")
 
@@ -22,7 +21,7 @@ kv_code = None
 class ProjectButton(Button):
   def _init__(self, **kwargs):
     super(ProjectButton, self).__init__(**kwargs)
-  
+
   def on_release(self):
     global py_code
     global kv_code
@@ -35,13 +34,12 @@ class ProjectButton(Button):
       py_file.close()
       kv_code = kv_file.read()
       kv_file.close()
-      Logger.info("IMPORTANT: {}\n{}".format(py_code, kv_code))
     except:
-      Logger.info("IMPORTANT:it failed :(")
+      pass
     m = App.get_running_app().root
     m.transition.direction = "left"
     m.current = "code"
-
+    App.get_running_app().current_project = this_project_dir
 
 
 class ProjectScreen(Screen):
@@ -59,23 +57,25 @@ class ProjectScreen(Screen):
   def calc_scroll_size(self):
     i = 0.9 - self.scroll.grid.button.size_hint_y
     for _ in self.scroll.grid.projects.children:
-      i = i+0.1
+      i = i + 0.1
     self.scroll.grid.size_hint = (1, i)
+
 
 class CodeScreen(Screen):
   def __init__(self, **kwargs):
     super(CodeScreen, self).__init__(**kwargs)
-  
+
   def on_pre_enter(self):
-    Logger.info("IMPORTANT: entered")
     self.main.manager.screens[0].input.text = py_code
     self.main.manager.screens[1].input.text = kv_code
+
 
 class BaseCodeScreen(Screen):
   def __init__(self, **kwargs):
     super(BaseCodeScreen, self).__init__(**kwargs)
     self.input = CodeInput()
     self.add_widget(self.input)
+
 
 class MainManager(ScreenManager):
   def __init__(self, **kwargs):
@@ -84,6 +84,7 @@ class MainManager(ScreenManager):
     self.add_widget(self.project)
     self.code = CodeScreen(name="code")
     self.add_widget(self.code)
+
 
 class CodeManager(ScreenManager):
   def __init__(self, **kwargs):
@@ -95,6 +96,7 @@ class CodeManager(ScreenManager):
 
 
 root = Builder.load_file(os.path.join(layout_dir, "main.kv"))
+
 
 class KivyCreator(App):
   def __init__(self, *args):
@@ -111,26 +113,29 @@ class KivyCreator(App):
   def on_start(self):
     self.root.project.load(self.projects_dir)
     self.root.project.calc_scroll_size()
+
   def on_pause(self):
     return False
+
   def on_resume(self):
     self.root.project.load(self.projects_dir)
     self.root.project.calc_scroll_size()
+
   def on_stop(self):
     pass
 
   def new_project_popup(self):
     popup = Popup(title="Enter a name",
-        content=Builder.load_file(os.path.join(layout_dir, "new_project_popup.kv")),
-        size_hint=(0.8, 0.2))
+                  content=Builder.load_file(os.path.join(layout_dir, "new_project_popup.kv")),
+                  size_hint=(0.8, 0.2))
     popup.open()
 
   def new_project(self, name):
     p = os.path.join(self.projects_dir, name)
 
     popup = Popup(title="Invalid name",
-          content=Label(text="A project already have that name"),
-          size_hint=(0.8, 0.15))
+                  content=Label(text="A project already have that name"),
+                  size_hint=(0.8, 0.15))
 
     if os.path.exists(p):
       popup.open()
@@ -147,9 +152,31 @@ class KivyCreator(App):
         rmtree(p)
 
       popup = Popup(title="Oops",
-          content=Label(text="Something went wrong"),
-          size_hint=(0.8, 0.15))
+                    content=Label(text="Something went wrong"),
+                    size_hint=(0.8, 0.15))
       popup.open()
-  
+
+  def close_project(self):
+    if self.root.code.main.manager.py_screen.input.text == py_code\
+        and self.root.code.main.manager.kv_screen.input.text == kv_code:
+      self.root.transition.direction = "right"
+      self.root.current = "project"
+    else:
+      p = Builder.load_file(os.path.join(layout_dir, "close_project_popup.kv"))
+      p.open()
+
+  def save_project(self):
+    try:
+      py_file = open(os.path.join(self.current_project, "main.py"), "w")
+      kv_file = open(os.path.join(self.current_project, "main.kv"), "w")
+      py_file.write(self.root.code.main.manager.py_screen.input.text)
+      kv_file.write(self.root.code.main.manager.kv_screen.input.text)
+      py_file.close()
+      kv_file.close()
+    except:
+      Logger.info("whoops")
+
+
+
 if __name__ == "__main__":
   KivyCreator().run()
