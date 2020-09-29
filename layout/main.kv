@@ -55,22 +55,31 @@ MainManager:
       Button:
         text: "back"
         on_release: app.close_project()
+      
+      Button:
+        text: "save"
+        on_release: app.save_project_popup()
 
-      ToggleButton:
-        group: "nav"
-        allow_no_selection: False
-        state: "down"
-        text: "py"
-        on_release:
-          root.main.manager.transition.direction = "right"
-          root.main.manager.current = "py"
-      ToggleButton
-        group: "nav"
-        allow_no_selection: False
-        text: "kv"
-        on_release:
-          root.main.manager.transition.direction = "left"
-          root.main.manager.current = "kv"
+# Hold method
+#      ToggleButton:
+#        group: "nav"
+#        allow_no_selection: False
+#        state: "down"
+#        text: "py"
+#        on_release:
+#          
+#      ToggleButton
+#        group: "nav"
+#        allow_no_selection: False
+#        text: "kv"
+#        on_release:
+#          root.main.manager.transition.direction = "left"
+#          root.main.manager.current = "kv"
+
+# New one
+      CodeButton:
+        size_hint: 0.5, 1
+
       Button:
         text: "run"
         on_release: app.check_code()

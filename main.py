@@ -1,6 +1,7 @@
 import os
 from shutil import rmtree
 import importlib
+import threading
 
 import kivy
 from kivy.app import App
@@ -19,6 +20,25 @@ layout_dir = os.path.join(root_dir, "layout")
 py_code = None
 kv_code = None
 kc = None
+run = False
+
+
+class CodeButton(Button):
+  def __init__(self, **kwargs):
+    super(CodeButton, self).__init__(**kwargs)
+    self.text = "py"
+  
+  def on_release(self):
+    a = App.get_running_app()
+    if self.text == "kv":
+      a.root.code.main.manager.transition.direction = "right"
+      a.root.code.main.manager.current = "py"
+      self.text = "py"
+      
+    else:
+      a.root.code.main.manager.transition.direction = "left"
+      a.root.code.main.manager.current = "kv"
+      self.text = "kv"
 
 
 class ProjectButton(Button):
@@ -105,11 +125,13 @@ root = Builder.load_file(os.path.join(layout_dir, "main.kv"))
 class KivyCreator(App):
   def __init__(self, *args):
     super(KivyCreator, self).__init__(*args)
-    self.kv_directory = layout_dir
+    #self.kv_directory = layout_dir
     self.projects_dir = os.path.abspath(os.path.join(self.user_data_dir, "projects"))
 
     if not os.path.exists(self.projects_dir):
       os.mkdir(self.projects_dir)
+    
+    self.is_restart = False
 
   def build(self):
     return root
@@ -117,9 +139,14 @@ class KivyCreator(App):
   def on_start(self):
     self.root.project.load(self.projects_dir)
     self.root.project.calc_scroll_size()
+    
+    if self.is_restart:
+      self.is_restart = False
+      self.root.current = "project"
+      self.root.current = "code"
 
   def on_pause(self):
-    return False
+    return True
 
   def on_resume(self):
     self.root.project.load(self.projects_dir)
@@ -133,6 +160,10 @@ class KivyCreator(App):
                   content=Builder.load_file(os.path.join(layout_dir, "new_project_popup.kv")),
                   size_hint=(0.8, 0.2))
     popup.open()
+    
+  def save_project_popup(self):
+    p = Builder.load_file(os.path.join(layout_dir, "save_project_popup.kv"))
+    p.open()
 
   def new_project(self, name):
     p = os.path.join(self.projects_dir, name)
@@ -193,32 +224,36 @@ class KivyCreator(App):
 
   def run_code(self):
     global kc
-    Logger.info("Run")
+    global run
+    run = True
     kc.stop()
-    s = None
     
-    try:
-      os.chdir(self.current_project)
-      Logger.info(self.current_project)
-      Logger.info(os.getcwd())
-      s = __import__("main")
-      s.start_app()
-    except:
-      
-      kc = KivyCreator()
-      kc.run()
-      Logger.info("Shit")
-    else:
-      kc = KivyCreator()
-      kc.run()
-    
-
-
 
 class second(App):
   def build(self):
-    return Button(text="cool", on_press=lambda s: self.stop())
+    return Button(text="yey", on_press=lambda s: self.stop())
 
-if __name__ == "__main__":
+def start(restart):
+  global kc
+  global run
+  os.chdir(root_dir)
   kc = KivyCreator()
   kc.run()
+  # class attributes will not reliad if
+  # the screen doesn't change by the user's
+  # inputs
+  kc.root.transition.direction = "right"
+  kc.root.current = "project"
+  if run:
+    run = False
+    kc.stop()
+    os.chdir(kc.current_project)
+    try:
+      exec(open("main.py", "r").read())
+    except:
+      pass
+    start(True)
+    
+
+if __name__ == "__main__":
+  start(False)
