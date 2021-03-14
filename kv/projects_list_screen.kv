@@ -17,6 +17,7 @@
 
       Button:
         text: "Settings"
+        on_release: app.open_settings()
       Button:
         text: "New project"
 
@@ -24,10 +25,9 @@
     ScrollView:
       id: scroll
       projects_grid: projects_grid
+      do_scroll_x: False
+
       GridLayout:
         id: projects_grid
-        size_hint_y: 2
+        size_hint_y: 1
         cols: 1
-
-        Button:
-        Button:

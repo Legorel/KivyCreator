@@ -3,19 +3,18 @@ from os import path
 from os.path import abspath
 
 import kivy
-
-kivy.require("1.9.1")
 from kivy.app import App
-from kivy.uix.button import Button
 from kivy.logger import Logger
 from kivy.lang import Builder
 
 from project import Project
 from screens.projectslistscreen import ProjectsListScreen
 
+kivy.require("1.9.1")
+
 
 def info(text):
-  Logger.info(text)
+  Logger.info("KivyCreator: {}".format(text))
 
 
 class KivyCreator(App):
@@ -60,71 +59,25 @@ class KivyCreator(App):
     self.root.projects.update_projects_list()
 
   def open_project(self, name):
+    info("opening project: {}".format(name))
     if name in self.projects:
-      #switch screens
       project_dir = path.join(self.project_dir, name)
       self.current_project = Project(project_dir).open()
+      # switch screens
 
   def save_project(self):
-    #TODO: Save popup
-    #TODO: read new content
+    info("saving current project")
+    # TODO: Save popup
+    # TODO: read new content
     new_tab_content = {}
     self.current_project.save(new_tab_content)
 
   def close_project(self):
+    info("closing current project")
     self.save_project()
     self.current_project = None
     os.chdir(self.default_dir)
-    
+
 
 if __name__ == "__main__":
-	KivyCreator().run()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+  KivyCreator().run()
