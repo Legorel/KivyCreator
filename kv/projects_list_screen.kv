@@ -1,0 +1,33 @@
+<ProjectsListScreen>:
+  grid: grid
+  scroll: grid.scroll
+  projects_grid: scroll.projects_grid
+  on_enter: self.update_projects_list()
+
+  GridLayout:
+    id: grid
+    top_buttons: top_buttons
+    scroll: scroll
+    cols: 1
+
+    GridLayout:
+      id: top_buttons
+      size_hint_y: 0.1
+      rows: 1
+
+      Button:
+        text: "Settings"
+      Button:
+        text: "New project"
+
+    #Projects' button
+    ScrollView:
+      id: scroll
+      projects_grid: projects_grid
+      GridLayout:
+        id: projects_grid
+        size_hint_y: 2
+        cols: 1
+
+        Button:
+        Button:

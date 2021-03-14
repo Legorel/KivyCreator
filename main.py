@@ -4,13 +4,14 @@ from os.path import abspath
 
 import kivy
 
-kivy.require("1.11.1")
+kivy.require("1.9.1")
 from kivy.app import App
 from kivy.uix.button import Button
 from kivy.logger import Logger
 from kivy.lang import Builder
 
 from project import Project
+from screens.projectslistscreen import ProjectsListScreen
 
 
 def info(text):
@@ -19,7 +20,7 @@ def info(text):
 
 class KivyCreator(App):
   def __init__(self):
-    super().__init__()
+    super(KivyCreator, self).__init__()
     self.default_dir = None
     self.project_dir = None
     self.projects = None
@@ -30,9 +31,18 @@ class KivyCreator(App):
     self.kv_directory = path.join(self.default_dir, "kv")
     self.kv_file = path.join(self.kv_directory, "main.kv")
     self.title = "KivyCreator"
+    self.load_kvs()
     self.set_project_dir()
     self.read_project_dir()
-    return Builder.load_file(self.kv_file)
+    self.update_project_list()
+    return self.root
+
+  def load_kvs(self):
+    for f in os.listdir(self.kv_directory):
+      p = path.join(self.kv_directory, f)
+      if f != "main.kv" and path.isfile(p):
+        Builder.load_file(p)
+    self.root = Builder.load_file(self.kv_file)
 
   def set_project_dir(self):
     self.project_dir = path.join(self.user_data_dir, "projects")
@@ -41,6 +51,13 @@ class KivyCreator(App):
 
   def read_project_dir(self):
     self.projects = [f for f in os.listdir(self.project_dir) if path.isdir(path.join(self.project_dir, f))]
+
+  def get_projects_list(self):
+    self.read_project_dir()
+    return self.projects
+
+  def update_project_list(self):
+    self.root.projects.update_projects_list()
 
   def open_project(self, name):
     if name in self.projects:
@@ -62,6 +79,31 @@ class KivyCreator(App):
 
 if __name__ == "__main__":
 	KivyCreator().run()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

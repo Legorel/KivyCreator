@@ -1,6 +1,7 @@
-__pychache__/
-venv/
-kivy/
+.__pychache__/
+.venv/
+.kivy/
 .projects/
 .launch
 .idea
+*.pyo
