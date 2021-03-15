@@ -1,6 +1,7 @@
 import os
 from os import path
 from os.path import abspath
+from shutil import rmtree
 
 import kivy
 from kivy.app import App
@@ -8,6 +9,7 @@ from kivy.logger import Logger
 from kivy.lang import Builder
 
 from project import Project
+from uix.popups import NewProjectErrorPopup
 from screens.projectslistscreen import ProjectsListScreen
 
 kivy.require("1.9.1")
@@ -57,6 +59,37 @@ class KivyCreator(App):
 
   def update_project_list(self):
     self.root.projects.update_projects_list()
+
+  def create_project(self, name):
+    info("Creating project: {}".format(name))
+    if self.current_project is not None:
+      self.close_project()
+    try:
+      os.chdir(self.project_dir)
+      os.mkdir(name)
+      self.open_project(name)
+    except FileExistsError:
+      NewProjectErrorPopup(project_name=name).open()
+    finally:
+      self.update_project_list()
+
+  def delete_project(self, name):
+    info("Deleting project: {}".format(name))
+    # TODO: add delete project popup
+    if name in self.projects:
+      try:
+        rmtree(path.join(self.project_dir, name))
+      except:
+        info("An error occurred when deleting project: {}".format(name))
+    self.update_project_list()
+
+  def run_project(self, name):
+    info("Running project: {}".format(name))
+    #TODO: run project
+
+  def export_project(self, name):
+    info("Exporting project: {}".format(name))
+    #TODO: export project
 
   def open_project(self, name):
     info("opening project: {}".format(name))

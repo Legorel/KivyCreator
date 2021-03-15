@@ -3,6 +3,7 @@ from kivy.uix.screenmanager import Screen
 from kivy.properties import ObjectProperty
 
 from uix.projectitem import ProjectItem
+from uix.popups import NewProjectPopup
 
 class ProjectsListScreen(Screen):
   projects_grid = ObjectProperty(None)
@@ -19,9 +20,16 @@ class ProjectsListScreen(Screen):
     self.update_scroll_size()
 
   def update_scroll_size(self):
-    # button_per_scroll = maximum buttons are visible without scrolling
+    # button_per_scroll = maximum buttons visible without scrolling
     # TODO: add button_per_scroll to config
     n = len(self.projects_grid.children) / self.button_per_scroll
     n = 1 if n<1 else n
 
     self.projects_grid.size_hint_y = n
+    # The top button gets cut-off when adding a new one
+    # so we force update the scrollview
+    self.projects_grid.parent.update_from_scroll()
+
+  @staticmethod
+  def new_project():
+    NewProjectPopup().open()

@@ -20,12 +20,14 @@
         on_release: app.open_settings()
       Button:
         text: "New project"
+        on_release: root.new_project()
 
     #Projects' button
     ScrollView:
-      id: scroll
       projects_grid: projects_grid
+      id: scroll
       do_scroll_x: False
+      scroll_type: ["bars", "content"]
 
       GridLayout:
         id: projects_grid

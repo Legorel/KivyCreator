@@ -1,7 +1,7 @@
 from kivy.app import App
 from kivy.uix.button import Button
 from kivy.uix.gridlayout import GridLayout
-from kivy.uix.popup import Popup
+from uix.popups import MorePopup
 
 
 class ProjectItem(GridLayout):
@@ -19,10 +19,4 @@ class ProjectItem(GridLayout):
     App.get_running_app().open_project(self.project_button.text)
 
   def more_button_released(self, _):
-    MorePopup(title=self.project_button.text).open()
-
-
-class MorePopup(Popup):
-  def __init__(self, **kwargs):
-    super(MorePopup, self).__init__(**kwargs)
-    self.title = "{} options".format(self.title)
+    MorePopup(project_name=self.project_button.text).open()

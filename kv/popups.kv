@@ -1,0 +1,77 @@
+<MorePopup>:
+  padding: 15, 15
+  title_align: "center"
+  size_hint: .6, .4
+
+  GridLayout:
+    rows: 2
+
+    GridLayout:
+      cols: 2
+
+      Button:
+        text: "Run"
+        on_release:
+          root.dismiss()
+          app.run_project(root.project_name)
+      Button:
+        size_hint_x: .6
+        text: "Export"
+        on_release:
+          root.dismiss()
+          app.export_project(root.project_name)
+
+    GridLayout:
+      cols: 2
+      Button:
+        text: "Edit"
+        on_release:
+          root.dismiss()
+          app.open_project(root.project_name)
+      Button:
+        size_hint_x: .6
+        text: "Delete"
+        on_release:
+          root.dismiss()
+          app.delete_project(root.project_name)
+
+
+<NewProjectPopup>:
+  grid: grid
+  text_input: grid.text_input
+  padding: 15, 15
+  title: "New project"
+  title_align: "center"
+  size_hint: .6, .25
+
+  GridLayout:
+    id: grid
+    text_input: text_input
+    cols: 1
+
+    TextInput:
+      id: text_input
+      focus: True
+      multiline: False
+      hint_text: "Project's name"
+      on_text_validate: root.create_project()
+
+    GridLayout:
+      cols: 2
+
+      Button:
+        text: "Create"
+        on_release: root.create_project()
+
+      Button:
+        text: "Cancel"
+        on_release: root.dismiss()
+
+<NewProjectErrorPopup>:
+  size_hint: 0.6, 0.2
+  title: "An error occurred"
+  title_align: "center"
+
+  Label:
+    text: "Couldn't create project '{}'".format(root.project_name)
+    halign: "center"
