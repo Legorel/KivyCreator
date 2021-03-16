@@ -7,9 +7,13 @@ from uix.popups import NewProjectPopup
 
 class ProjectsListScreen(Screen):
   projects_grid = ObjectProperty(None)
-  button_per_scroll = 3
+
+  def __init__(self, **kwargs):
+    super(ProjectsListScreen, self).__init__(**kwargs)
+    self.button_per_scroll = 3
 
   def update_projects_list(self):
+
     app = App.get_running_app()
     projects = app.get_projects_list()
 

@@ -1,17 +1,11 @@
 <ProjectsListScreen>:
-  grid: grid
-  scroll: grid.scroll
-  projects_grid: scroll.projects_grid
+  projects_grid: projects_grid
   on_enter: self.update_projects_list()
 
   GridLayout:
-    id: grid
-    top_buttons: top_buttons
-    scroll: scroll
     cols: 1
 
     GridLayout:
-      id: top_buttons
       size_hint_y: 0.1
       rows: 1
 
@@ -22,10 +16,7 @@
         text: "New project"
         on_release: root.new_project()
 
-    #Projects' button
     ScrollView:
-      projects_grid: projects_grid
-      id: scroll
       do_scroll_x: False
       scroll_type: ["bars", "content"]
 

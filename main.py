@@ -1,4 +1,5 @@
 import os
+import time
 from os import path
 from os.path import abspath
 from shutil import rmtree
@@ -10,7 +11,11 @@ from kivy.lang import Builder
 
 from project import Project
 from uix.popups import NewProjectErrorPopup
+
+# Importing screens class so they can be defined using kv
 from screens.projectslistscreen import ProjectsListScreen
+
+from testapp import TestApp
 
 kivy.require("1.9.1")
 
@@ -26,6 +31,7 @@ class KivyCreator(App):
     self.project_dir = None
     self.projects = None
     self.current_project = None
+    self.run_next = None
 
   def build(self):
     self.default_dir = abspath(os.getcwd())
@@ -79,13 +85,17 @@ class KivyCreator(App):
     if name in self.projects:
       try:
         rmtree(path.join(self.project_dir, name))
+      #Should be FileNotFoundError -> not supported on python 2 (used by kivy launcher)
+      #TODO: add FileNotFoundError
       except:
         info("An error occurred when deleting project: {}".format(name))
     self.update_project_list()
 
   def run_project(self, name):
     info("Running project: {}".format(name))
-    #TODO: run project
+    # TODO: run the correct app
+    self.run_next = TestApp()
+    self.stop()
 
   def export_project(self, name):
     info("Exporting project: {}".format(name))
@@ -112,5 +122,17 @@ class KivyCreator(App):
     os.chdir(self.default_dir)
 
 
+def start(first_app):
+  #TODO: finish implementing running other apps
+  app_class = type(first_app)
+  while True:
+    app = app_class()
+    app.run()
+
+    if not hasattr(app, "run_next") or app.run_next is None: return
+    app.run_next.run()
+    # must wait or else the app might crash
+    time.sleep(1)
+
 if __name__ == "__main__":
-  KivyCreator().run()
+  start(KivyCreator())
