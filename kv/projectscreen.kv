@@ -12,11 +12,40 @@
 
       Button:
         text: "New project"
+        on_release: root.new_project_popup()
       Button:
         text: "Settings"
 
     ScrollView:
+      do_scroll_x: False
       GridLayout:
         id: project_grid
         size_hint_y: 1
         cols: 1
+
+
+<NewProjectPopup>:
+  text_input: text_input
+  title: "Create a new project"
+  title_align: "center"
+  title_size: "18sp"
+  size_hint: 0.6, 0.25
+
+  GridLayout:
+    cols: 1
+    TextInput:
+      id: text_input
+      text_size: "18sp"
+      multiline: False
+
+    GridLayout:
+      rows: 1
+      Button:
+        text: "Create"
+        on_release:
+          root.project_name = root.text_input.text
+          root.dismiss() if root.text_input.text != "" else None
+      Button:
+        text: "Cancel"
+        on_release:
+          root.dismiss()

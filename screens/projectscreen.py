@@ -4,6 +4,7 @@ from os import path
 from kivy.app import App
 from kivy.properties import ObjectProperty
 from kivy.uix.button import Button
+from kivy.uix.popup import Popup
 from kivy.uix.screenmanager import Screen
 
 
@@ -39,7 +40,8 @@ class ProjectScreen(Screen):
       self.project_grid.size_hint_y = 1
     else:
       hidden_buttons = len(self.project_list) - self.max_button_per_scroll
-      self.project_grid.size_hint_y = 1 + (hidden_buttons/self.max_button_per_scroll)
+      amount = (hidden_buttons / self.max_button_per_scroll)
+      self.project_grid.size_hint_y = 1 + amount
 
   def update_project_buttons(self):
     self.update_project_list()
@@ -48,3 +50,25 @@ class ProjectScreen(Screen):
       # TODO: Add and use ProjectButton class
       self.project_grid.add_widget(Button(text=project_name))
     self.update_project_grid_size()
+
+  def new_project_popup(self):
+    popup = NewProjectPopup()
+    popup.bind(on_dismiss=lambda p: self.new_project(p.project_name))
+    popup.open()
+
+  def new_project(self, new_project_name):
+    if new_project_name is None:
+      return
+    self.update_project_dir()
+    new_project_dir = path.join(self.project_dir, new_project_name)
+    if path.exists(new_project_dir):
+      # TODO: might want to add a warning popup
+      return
+    os.mkdir(new_project_dir)
+    self.update_project_buttons()
+
+
+class NewProjectPopup(Popup):
+  def __init__(self, **kwargs):
+    super().__init__(**kwargs)
+    self.project_name = None
