@@ -1,0 +1,22 @@
+<ProjectScreen>:
+  action_bar: action_bar
+  project_grid: project_grid
+  GridLayout:
+    id: Main
+    cols: 1
+
+    GridLayout:
+      id: action_bar
+      size_hint_y: 0.175
+      rows: 1
+
+      Button:
+        text: "New project"
+      Button:
+        text: "Settings"
+
+    ScrollView:
+      GridLayout:
+        id: project_grid
+        size_hint_y: 1
+        cols: 1
