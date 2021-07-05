@@ -16,7 +16,11 @@ class ProjectScreen(Screen):
     super().__init__(**kwargs)
     self.project_dir = ""
     self.project_list = []
-    self.max_button_per_scroll = 4
+    self.button_per_scroll = 4
+    app = App.get_running_app()
+    app.bind(on_config_change=lambda a, c, s, k, v: self.update_config(c, s, k, v))
+    # Default value for when the app starts
+    self.button_per_scroll = int(app.config.get("customization", "button_per_scroll"))
 
   def on_enter(self, *args):
     self.update_project_buttons()
@@ -36,12 +40,22 @@ class ProjectScreen(Screen):
         self.project_list.append(name)
 
   def update_project_grid_size(self):
-    if len(self.project_list) < self.max_button_per_scroll:
+    if len(self.project_list) < self.button_per_scroll:
       self.project_grid.size_hint_y = 1
     else:
-      hidden_buttons = len(self.project_list) - self.max_button_per_scroll
-      amount = (hidden_buttons / self.max_button_per_scroll)
+      hidden_buttons = len(self.project_list) - self.button_per_scroll
+      amount = (hidden_buttons / self.button_per_scroll)
       self.project_grid.size_hint_y = 1 + amount
+    # Move and go back to update the scrollview
+    # There is probably a better way to do this
+    scroll_y = self.project_grid.parent.scroll_y
+    self.project_grid.parent.scroll_y = scroll_y + 1
+    self.project_grid.parent.scroll_y = scroll_y
+
+  def update_config(self, config, section, key, value):
+    if section == "customization" and key == "button_per_scroll":
+      self.button_per_scroll = int(value)
+      self.update_project_buttons()
 
   def update_project_buttons(self):
     self.update_project_list()

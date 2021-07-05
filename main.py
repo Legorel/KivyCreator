@@ -6,8 +6,10 @@ import traceback
 
 import kivy
 from kivy.app import App
+from kivy.config import ConfigParser
 from kivy.lang import Builder
 from kivy.logger import Logger
+from kivy.uix.settings import Settings
 
 from kcscreenmanager import KCScreenManager
 
@@ -25,6 +27,14 @@ class KivyCreator(App):
     self.load_kv_files()
 
     return KCScreenManager()
+
+  def build_config(self, config: ConfigParser):
+    config.setdefaults("customization", {
+      "button_per_scroll": 4
+    })
+
+  def build_settings(self, settings: Settings):
+    settings.add_json_panel("Kivy Creator", self.config, "settings.json")
 
   def load_kv_files(self):
     self.unload_kv_files()

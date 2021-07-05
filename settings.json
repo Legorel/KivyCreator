@@ -1,0 +1,13 @@
+[
+  {
+    "type": "title",
+    "title": "Customization"
+  },
+  {
+    "type": "numeric",
+    "title": "Max button per scroll",
+    "desc": "Number of buttons displayed without scrolling",
+    "section": "customization",
+    "key": "button_per_scroll"
+  }
+]

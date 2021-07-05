@@ -12,9 +12,12 @@
 
       Button:
         text: "New project"
-        on_release: root.new_project_popup()
+        on_release:
+          root.new_project_popup()
       Button:
         text: "Settings"
+        on_release:
+          app.open_settings()
 
     ScrollView:
       do_scroll_x: False
@@ -35,7 +38,8 @@
     cols: 1
     TextInput:
       id: text_input
-      text_size: "18sp"
+      font_size: "24sp"
+      height: "42sp"
       multiline: False
 
     GridLayout:
