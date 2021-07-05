@@ -7,6 +7,9 @@ from kivy.uix.button import Button
 from kivy.uix.popup import Popup
 from kivy.uix.screenmanager import Screen
 
+from buttons.projectbutton import ProjectButton
+from popups.optionselectpopup import OptionSelectPopup
+
 
 class ProjectScreen(Screen):
   action_bar = ObjectProperty(None)
@@ -57,12 +60,18 @@ class ProjectScreen(Screen):
       self.button_per_scroll = int(value)
       self.update_project_buttons()
 
+  def add_project_button(self, project_name):
+    button = ProjectButton(text=project_name)
+    button.bind(on_project_released=lambda b: self.open_project(b.project_name))
+    button.bind(on_project_settings_released=lambda b: self.open_project_settings(b.project_name))
+    self.project_grid.add_widget(button)
+
   def update_project_buttons(self):
     self.update_project_list()
     self.project_grid.clear_widgets()
     for project_name in self.project_list:
       # TODO: Add and use ProjectButton class
-      self.project_grid.add_widget(Button(text=project_name))
+      self.add_project_button(project_name)
     self.update_project_grid_size()
 
   def new_project_popup(self):
@@ -80,6 +89,33 @@ class ProjectScreen(Screen):
       return
     os.mkdir(new_project_dir)
     self.update_project_buttons()
+
+  def open_project(self, project_name):
+    pass
+
+  def rename_project(self, old_project_name):
+    # TODO: make rename_project
+    pass
+
+  def delete_project(self, project_name):
+    # TODO: make delete_project
+    pass
+
+  def open_project_settings(self, project_name):
+    popup = OptionSelectPopup(project_name)
+    popup.add_options(["Open", "Rename", "Delete"])
+    self.bind(on_dismiss=lambda p: self.open_project_settings_result(p.result, p.title))
+    popup.open()
+
+  def open_project_settings_result(self, result, project_name):
+    if result is None:
+      return
+    if result == "Open":
+      self.open_project(project_name)
+    if result == "Rename":
+      self.rename_project(project_name)
+    if result == "Delete":
+      self.delete_project(project_name)
 
 
 class NewProjectPopup(Popup):

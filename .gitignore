@@ -3,6 +3,7 @@
 /shelf/
 /.idea/
 /__pycache__/
+*/__pycache__/
 /workspace.xml
 /screens/__pycache__/
 kivycreator.ini
