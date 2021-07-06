@@ -8,17 +8,18 @@ class OptionSelectPopup(Popup):
 
   def __init__(self, project_name):
     super().__init__()
+    self.project_name = project_name
     self.title = project_name
-    self.result = None
-
-  def set_result(self, result):
-    self.result = result
+    self.options = {}
 
   def add_option(self, text):
-    button = Button(text=text)
-    button.bind(on_release=lambda b: self.set_result(b.text))
-    self.option_grid.add_widget(button)
+    self.options[text] = Button(text=text)
+    self.option_grid.add_widget(self.options[text])
 
   def add_options(self, options):
     for text in options:
       self.add_option(text)
+
+  def bind_to_option(self, option, func):
+    if option in self.options.keys():
+      self.options[option].bind(on_release=func)

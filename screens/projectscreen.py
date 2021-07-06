@@ -93,29 +93,27 @@ class ProjectScreen(Screen):
   def open_project(self, project_name):
     pass
 
-  def rename_project(self, old_project_name):
+  def rename_project_popup(self, old_project_name):
     # TODO: make rename_project
     pass
 
-  def delete_project(self, project_name):
+  def rename_project(self, old_project_name):
+    pass
+
+  def delete_project_popup(self, project_name):
     # TODO: make delete_project
+    pass
+
+  def delete_project(self, project_name):
     pass
 
   def open_project_settings(self, project_name):
     popup = OptionSelectPopup(project_name)
     popup.add_options(["Open", "Rename", "Delete"])
-    self.bind(on_dismiss=lambda p: self.open_project_settings_result(p.result, p.title))
+    popup.bind_to_option("Open", lambda o: self.open_project(project_name))
+    popup.bind_to_option("Rename", lambda o: self.rename_project_popup(project_name))
+    popup.bind_to_option("Delete", lambda o: self.delete_project_popup(project_name))
     popup.open()
-
-  def open_project_settings_result(self, result, project_name):
-    if result is None:
-      return
-    if result == "Open":
-      self.open_project(project_name)
-    if result == "Rename":
-      self.rename_project(project_name)
-    if result == "Delete":
-      self.delete_project(project_name)
 
 
 class NewProjectPopup(Popup):
