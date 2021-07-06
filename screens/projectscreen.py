@@ -3,11 +3,10 @@ from os import path
 
 from kivy.app import App
 from kivy.properties import ObjectProperty
-from kivy.uix.button import Button
-from kivy.uix.popup import Popup
 from kivy.uix.screenmanager import Screen
 
 from buttons.projectbutton import ProjectButton
+from popups.TextInputPopup import TextInputPopup
 from popups.optionselectpopup import OptionSelectPopup
 
 
@@ -75,8 +74,8 @@ class ProjectScreen(Screen):
     self.update_project_grid_size()
 
   def new_project_popup(self):
-    popup = NewProjectPopup()
-    popup.bind(on_dismiss=lambda p: self.new_project(p.project_name))
+    popup = TextInputPopup("Create a new project")
+    popup.bind(on_dismiss=lambda p: self.new_project(p.input))
     popup.open()
 
   def new_project(self, new_project_name):
@@ -114,9 +113,3 @@ class ProjectScreen(Screen):
     popup.bind_to_option("Rename", lambda o: self.rename_project_popup(project_name))
     popup.bind_to_option("Delete", lambda o: self.delete_project_popup(project_name))
     popup.open()
-
-
-class NewProjectPopup(Popup):
-  def __init__(self, **kwargs):
-    super().__init__(**kwargs)
-    self.project_name = None
