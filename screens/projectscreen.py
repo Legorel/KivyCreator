@@ -93,11 +93,15 @@ class ProjectScreen(Screen):
     pass
 
   def rename_project_popup(self, old_project_name):
-    # TODO: make rename_project
-    pass
+    popup = TextInputPopup("Enter a new name")
+    popup.bind(on_dismiss=lambda p: self.rename_project(old_project_name, p.input))
+    popup.open()
 
-  def rename_project(self, old_project_name):
-    pass
+  def rename_project(self, old_project_name, new_project_name):
+    project_path = path.join(self.project_dir, old_project_name)
+    if path.isdir(project_path):
+      os.rename(project_path, path.join(self.project_dir, new_project_name))
+    self.update_project_buttons()
 
   def delete_project_popup(self, project_name):
     # TODO: make delete_project
