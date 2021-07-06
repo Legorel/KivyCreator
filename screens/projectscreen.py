@@ -6,7 +6,7 @@ from kivy.properties import ObjectProperty
 from kivy.uix.screenmanager import Screen
 
 from buttons.projectbutton import ProjectButton
-from popups.TextInputPopup import TextInputPopup
+from popups.textinputpopup import TextInputPopup
 from popups.optionselectpopup import OptionSelectPopup
 
 
@@ -104,7 +104,6 @@ class ProjectScreen(Screen):
     self.update_project_buttons()
 
   def delete_project_popup(self, project_name):
-    # TODO: make delete_project
     pass
 
   def delete_project(self, project_name):
