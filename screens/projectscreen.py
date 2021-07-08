@@ -1,11 +1,13 @@
 import os
 from os import path
+from shutil import rmtree
 
 from kivy.app import App
 from kivy.properties import ObjectProperty
 from kivy.uix.screenmanager import Screen
 
 from buttons.projectbutton import ProjectButton
+from popups.confirmpopup import ConfirmPopup
 from popups.textinputpopup import TextInputPopup
 from popups.optionselectpopup import OptionSelectPopup
 
@@ -104,10 +106,15 @@ class ProjectScreen(Screen):
     self.update_project_buttons()
 
   def delete_project_popup(self, project_name):
-    pass
+    popup = ConfirmPopup(f"Delete project '{project_name}' ?", "This action is irreversible")
+    popup.bind(on_dismiss=lambda p: self.delete_project(project_name) if p.result else None)
+    popup.open()
 
   def delete_project(self, project_name):
-    pass
+    project_path = path.join(self.project_dir, project_name)
+    if path.isdir(project_path):
+      rmtree(project_path)
+    self.update_project_buttons()
 
   def open_project_settings(self, project_name):
     popup = OptionSelectPopup(project_name)

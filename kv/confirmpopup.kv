@@ -1,0 +1,26 @@
+<ConfirmPopup>:
+  message_label: message
+  size_hint: 0.6, 0.25
+  auto_dismiss: False
+  title_align: "center"
+  title_size: "18sp"
+
+  GridLayout:
+    cols: 1
+    Label:
+      id: message
+      font_size: "15sp"
+      halign: "center"
+
+    GridLayout:
+      rows: 1
+      Button:
+        text: "Confirm"
+        on_release:
+          root.result = True
+          root.dismiss()
+      Button:
+        text: "Cancel"
+        on_release:
+          root.dismiss = False
+          root.dismiss()
