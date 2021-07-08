@@ -14,6 +14,7 @@ class OptionSelectPopup(Popup):
 
   def add_option(self, text):
     self.options[text] = Button(text=text)
+    self.options[text].bind(on_release=self.dismiss)
     self.option_grid.add_widget(self.options[text])
 
   def add_options(self, options):

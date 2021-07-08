@@ -100,6 +100,8 @@ class ProjectScreen(Screen):
     popup.open()
 
   def rename_project(self, old_project_name, new_project_name):
+    if new_project_name == "":
+      return
     project_path = path.join(self.project_dir, old_project_name)
     if path.isdir(project_path):
       os.rename(project_path, path.join(self.project_dir, new_project_name))
